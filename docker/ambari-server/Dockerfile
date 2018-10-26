@@ -2,14 +2,12 @@ FROM ubuntu:16.04
 
 ARG ambari_repo=http://public-repo-1.hortonworks.com/ambari/ubuntu16/2.x/updates/2.7.1.0/ambari.list
 ARG hdp_utils_repo=http://public-repo-1.hortonworks.com/HDP-UTILS-1.1.0.22/repos/ubuntu16
-ARG ambari_os_user=root
-ARG ambari_db_name=ambari
-ARG ambari_db_user=ambari
-ARG ambari_db_schema=ambari
-ARG ambari_db_password=bigdata
-ARG database_hostname
-
-RUN if [ -z "$database_hostname" ]; then echo "Expected a database hostname"; exit 1; fi
+ARG default_ambari_os_user=root
+ARG default_ambari_db_name=ambari
+ARG default_ambari_db_user=ambari
+ARG default_ambari_db_schema=ambari
+ARG default_ambari_db_password=bigdata
+ARG default_database_hostname=postgres
 
 VOLUME /resources
 
@@ -33,8 +31,7 @@ RUN chmod +x /root/database-setup.sh
 ADD scripts/start.sh /root/start.sh
 RUN chmod +x /root/start.sh
 
-RUN /root/ambari-setup.sh --os-user $ambari_os_user --ambari-db-user $ambari_db_user --ambari-db-name $ambari_db_name --ambari-db-schema $ambari_db_schema --ambari-db-password $ambari_db_password --database-hostname $database_hostname
-RUN /root/database-setup.sh --ambari-db-user $ambari_db_user --ambari-db-name $ambari_db_name --ambari-db-schema $ambari_db_schema --ambari-db-password $ambari_db_password --database-hostname $database_hostname
+# TODO, write default values somewhere where they can be read by the start script when running a container
 
 EXPOSE 8080
 ENTRYPOINT  ["/root/start.sh"]

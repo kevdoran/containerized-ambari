@@ -1,8 +1,7 @@
 FROM ubuntu:16.04
 
 ARG ambari_repo=http://public-repo-1.hortonworks.com/ambari/ubuntu16/2.x/updates/2.7.1.0/ambari.list
-ARG ambari_os_user=root
-ARG ambari_server_hostname=ambari-server-ubuntu
+ARG default_ambari_server_hostname=ambari-server
 
 # add ambari ubuntu repository
 RUN apt-get update
@@ -13,9 +12,10 @@ RUN apt-get update
 
 RUN apt-get install -y ambari-agent
 
-RUN sed -i "s/^hostname=.*/hostname=$ambari_server_hostname/g" /etc/ambari-agent/conf/ambari-agent.ini
-
 ADD scripts/start.sh /root/start.sh
 RUN chmod +x /root/start.sh
+
+# this sets the default hostname. at runtime, it can be overwritten with the AMBARI_SERVER_HOSTNAME env var
+RUN sed -i "s/^hostname=.*/hostname=$default_ambari_server_hostname/g" /etc/ambari-agent/conf/ambari-agent.ini
 
 ENTRYPOINT  ["/root/start.sh"]

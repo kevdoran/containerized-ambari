@@ -2,7 +2,12 @@
 Run Ambari within Docker containers!
 
 # Building and starting the cluster
-The database container must be started before running the build script, otherwise ambari-setup will fail when attempting to validate the connection to the database container.
+
+## Using docker-compose
+
+Follow the steps from the [docker-compose/README.md](./docker-compose/README.md) file.
+
+## Using docker and shell scripts
 
 ## The run.sh script
     usage: docker/scripts/run.sh -d -c [-n #] [-h]
@@ -12,9 +17,12 @@ The database container must be started before running the build script, otherwis
            -n or --agent-node-count        specifies the number of ambari-agent containers
 
 ### From the scripts directory:
+
 1. ./run.sh -d
 1. ./build.sh
 1. ./run.sh -c [-n *n*]
+
+Note: The database container must be started before running the build script, otherwise ambari-setup will fail when attempting to validate the connection to the database container.
 
 # Containers started by the run.sh script
 Several containers are started by the run.sh script:

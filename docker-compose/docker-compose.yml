@@ -1,0 +1,52 @@
+version: '3'
+
+networks:
+  ambari-bridge:
+
+services:
+  reverse-proxy:
+    image: traefik # The official Traefik docker image
+    command: --api --docker # Enables the web UI and tells Traefik to listen to docker
+    ports:
+      - 80:80     # The HTTP port
+      - 8080:8080 # The Web UI (enabled by --api)
+    networks:
+      - ambari-bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
+
+  postgres:
+    image: postgres:9.6.8
+    ports:
+      - 5432
+    networks:
+      - ambari-bridge
+
+  ambari-server:
+    build:
+      context: ../docker/ambari-server
+    image: ambari-server-ubuntu  # tags the built image
+    environment:
+      AMBARI_OS_USER: root
+      AMBARI_DB_USER: ambari
+      AMBARI_DB_NAME: ambari
+      AMBARI_DB_SCHEMA: ambari
+      AMBARI_DB_PASSWORD: bigdata
+      AMBARI_DB_HOST: postgres
+    networks:
+      - ambari-bridge
+    labels:
+      traefik.frontend.rule: "Host:ambari-server.docker.localhost"
+    depends_on:
+      - postgres
+
+  ambari-agent:
+    build:
+      context: ../docker/ambari-agent
+    image: ambari-agent-ubuntu  # tags the built image
+    environment:
+      AMBARI_SERVER_HOSTNAME: ambari-server
+    networks:
+      - ambari-bridge
+    depends_on:
+      - ambari-server
